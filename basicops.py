@@ -20,10 +20,7 @@ class ReelNumber:
         if stdc=="":
             stdc='0'
 
-        if self.signe=='-':
-            return self.signe+stwh+","+stdc
-        else:
-            return stwh+","+stdc
+        return self.signe+stwh+","+stdc
 
 class complexNumber:
     def __init__(self,re,im):
@@ -63,11 +60,32 @@ def compareWithoutSign(nb1 : ReelNumber,nb2: ReelNumber):
             elif l1[i]<l2[i]:
                 return nb2,nb1
     return nb1,nb2        
-            
+def equalLengths(nb1:ReelNumber, nb2:ReelNumber):
+    #whole_part
+    if len(nb1.part_whole)>len(nb2.part_whole):
+        ndiff=len(nb1.part_whole)-len(nb2.part_whole)            
+        for i in range(ndiff):
+            nb2.part_whole.insert(0,0)
+    elif len(nb1.part_whole)<len(nb2.part_whole):
+        ndiff=len(nb2.part_whole)-len(nb1.part_whole)            
+        for i in range(ndiff):
+            nb1.part_whole.insert(0,0)
+
+    #decimal_part
+    if len(nb1.part_decimal)>len(nb2.part_decimal):
+        ndiff=len(nb1.part_decimal)-len(nb2.part_decimal)            
+        for i in range(ndiff):
+            nb2.part_decimal.append(0)
+    elif len(nb1.part_decimal)<len(nb2.part_decimal):
+        ndiff=len(nb2.part_decimal)-len(nb1.part_decimal)            
+        for i in range(ndiff):
+            nb1.part_decimal.append(0)
 
 
-nb1=ReelNumber([0,0,0,0,0],[8],'-')
-nb2=ReelNumber([0],[8,0,0,1,4,1,2,3,0,3,0,0],'+')
+
+
+nb1=ReelNumber([0,5,8,0,0],[8],'-')
+nb2=ReelNumber([9,1,5,5],[8,0,0,1,4,1,2,3,0,3,0,0],'+')
 nb3=ReelNumber([0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0],'+')
 
 print(nb1)
@@ -76,6 +94,7 @@ print(nb2)
 print()
 
 nb11,nb22=compareWithoutSign(nb1,nb2)
+equalLengths(nb11,nb22)
 print(nb11)
 print(nb22)
 # -1    -1  
