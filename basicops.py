@@ -121,7 +121,7 @@ def PosPlus(nb1:ReelNumber, nb2:ReelNumber):
         i-=1
     if sp>=1:
        wh.insert(0,sp)            
-    return wh,dc,nb11.signe,nb22.signe   
+    return wh,dc,nb11.signe
 
 def PosMinus(nb1:ReelNumber, nb2:ReelNumber):
     nb11,nb22=compareWithoutSign(nb1,nb2)
@@ -153,7 +153,7 @@ def PosMinus(nb1:ReelNumber, nb2:ReelNumber):
             sp=0
         wh.insert(0,r)
         i-=1 
-    return wh,dc,nb11.signe,nb22.signe   
+    return wh,dc,nb11.signe 
 
 def PosMult(nb1:ReelNumber, nb2:ReelNumber):
     l1=nb1.part_whole.copy()
@@ -172,7 +172,6 @@ def PosMult(nb1:ReelNumber, nb2:ReelNumber):
         sp=0
         while(j>=-len(l2)):
             r=l1[i]*l2[j]+sp
-            print("i:",i,"j:",j,"r:",r)
             if r>=10:
                 sp=r//10
                 r=r%10
@@ -213,25 +212,53 @@ def PosMult(nb1:ReelNumber, nb2:ReelNumber):
     dc=flist[nsplit:]
     return wh,dc 
 
+def operation(nb1:ReelNumber,nb2:ReelNumber,oper):
+    
+    if oper=='+':
+        if nb1.signe==nb2.signe :
+            wh,dc,si=PosPlus(nb1,nb2)
+        else:
+            wh,dc,si=PosMinus(nb1,nb2)
+        return ReelNumber(wh,dc,si)     
+    if oper=='-':
+        if nb1.signe!=nb2.signe :
+            #+5-(-6)=5+6=11
+            #-5-(+6)=-5-6=-11                
+            wh,dc,_=PosPlus(nb1,nb2)
+            si=nb1.signe
+        else:
+            #+5-(+6)=5-6=-1
+            #-5-(-6)=-5+6=1              
+            wh,dc,si1=PosMinus(nb1,nb2) 
+            if si1=='+':
+                si='-'
+            else:
+                si='+'
+        return ReelNumber(wh,dc,si)        
+    if oper=='*':
+        wh,dc=PosMult(nb1,nb2)
+        if nb1.signe==nb2.signe :
+            si='+'
+        else:
+            si='-'
+        return ReelNumber(wh,dc,si)
+    return None    
 
 
-nb1=ReelNumber([0,5,8,0,0],[9],'-')
+
+
+
+
+nb1=ReelNumber([0,5,8,0,0],[9],'+')
 nb2=ReelNumber([9,1,5,5],[8,0,0,1,4,1,2,3,0,3,0,0],'+')
-nb3=ReelNumber([0],[5,6],'+')
+nb3=ReelNumber([0],[5,6],'-')
 nb4=ReelNumber([0],[0,5,0,0,0,0,0,0,0,0,0,0],'+')
-print(nb1)
-print(nb2)
 
-print()
-nbx=PosMinus(nb1,nb2)
-nbx2=PosPlus(nb1,nb2)
-print(nbx)
-print(nbx2)
-nbx3=PosMult(nb3,nb4)
-nbx4=PosMult(nb1,nb2)
-print(nbx3)
-print(nbx4)
 
+resnb=operation(nb1,nb2,'*')
+print(resnb)
+resnb=operation(nb3,nb4,'*')
+print(resnb)
 #          -1 0     
 #[1,0,3][1,0,4]+
 #[1,5,0][5,0,0]
