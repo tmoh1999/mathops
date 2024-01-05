@@ -121,7 +121,7 @@ def PosPlus(nb1:ReelNumber, nb2:ReelNumber):
         i-=1
     if sp>=1:
        wh.insert(0,sp)            
-    return wh,dc   
+    return wh,dc,nb11.signe,nb22.signe   
 
 def PosMinus(nb1:ReelNumber, nb2:ReelNumber):
     nb11,nb22=compareWithoutSign(nb1,nb2)
@@ -153,17 +153,72 @@ def PosMinus(nb1:ReelNumber, nb2:ReelNumber):
             sp=0
         wh.insert(0,r)
         i-=1 
-    return wh,dc   
+    return wh,dc,nb11.signe,nb22.signe   
 
+def PosMult(nb1:ReelNumber, nb2:ReelNumber):
+    l1=nb1.part_whole.copy()
+    l1.extend(nb1.part_decimal.copy())
+    l2=nb2.part_whole.copy()
+    l2.extend(nb2.part_decimal.copy())
+    list_mult=[]
+    nbt=len(l1)+1+len(l2)-1
+    i=-1
 
+    #do mult
+    nn=0
+    while(i>=-len(l1)):
+        ll=[]
+        j=-1
+        sp=0
+        while(j>=-len(l2)):
+            r=l1[i]*l2[j]+sp
+            print("i:",i,"j:",j,"r:",r)
+            if r>=10:
+                sp=r//10
+                r=r%10
+            else:
+                sp=0
+            ll.insert(0,r)
+            j-=1
 
+        if sp>=1:
+            ll.insert(0,sp)
+        for k in range(nn):
+            ll.append(0)
+        ndiff=nbt-len(ll)
+
+        for k in range(ndiff):
+            ll.insert(0,0)
+        list_mult.append(ll)                    
+        i-=1
+        nn+=1
+    #sum results
+    n=len(list_mult[0])
+    i=-1
+    sp=0
+    flist=[]
+    while(i>=-n):
+        r=sp
+        for l in list_mult:
+            r+=l[i]
+        if r>=10:
+            sp=r//10
+            r=r%10
+        else:
+            sp=0
+        flist.insert(0,r)    
+        i-=1     
+    nsplit=len(nb1.part_whole)+len(nb2.part_whole)
+    wh=flist[0:nsplit]
+    dc=flist[nsplit:]
+    return wh,dc 
 
 
 
 nb1=ReelNumber([0,5,8,0,0],[9],'-')
 nb2=ReelNumber([9,1,5,5],[8,0,0,1,4,1,2,3,0,3,0,0],'+')
-nb3=ReelNumber([0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0],'+')
-
+nb3=ReelNumber([0],[5,6],'+')
+nb4=ReelNumber([0],[0,5,0,0,0,0,0,0,0,0,0,0],'+')
 print(nb1)
 print(nb2)
 
@@ -172,6 +227,11 @@ nbx=PosMinus(nb1,nb2)
 nbx2=PosPlus(nb1,nb2)
 print(nbx)
 print(nbx2)
+nbx3=PosMult(nb3,nb4)
+nbx4=PosMult(nb1,nb2)
+print(nbx3)
+print(nbx4)
+
 #          -1 0     
 #[1,0,3][1,0,4]+
 #[1,5,0][5,0,0]
@@ -193,3 +253,13 @@ print(nbx2)
 #.....
 #1+9+1=11
 #sp=1
+
+#[7,2,5][3]
+#  [4][5,6]
+#     43518
+#     0
+#3*6+sp=18>=10 =>sp=18//10=1 r=8
+#5*6+sp=31>=10 => sp=3 r=1
+#2*6+sp=15=> sp=1 r=5
+#7*6+sp=43=> sp=4 r=3
+
