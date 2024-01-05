@@ -5,6 +5,9 @@ class ReelNumber:
         self.signe=si
         self.removeUnutilZeroes()
         #example nb='+'[1,2,3][1,8,4]
+    def changeSigneToPositif(self):
+        if self.signe=='-':
+            self.signe='+'    
     def copyReelNumber(self):
         wh=self.part_whole.copy()
         dc=self.part_decimal.copy()
@@ -90,6 +93,39 @@ def equalLengths(nb11:ReelNumber, nb22:ReelNumber):
         for i in range(ndiff):
             nb1.part_decimal.append(0)
     return nb1,nb2        
+def comparePosNumbers(nb1 : ReelNumber,nb2: ReelNumber):
+    nb1.removeUnutilZeroes()
+    nb2.removeUnutilZeroes()
+    if len(nb1.part_whole)>len(nb2.part_whole):
+        return 1
+    elif len(nb1.part_whole)<len(nb2.part_whole):
+        return -1
+    else:
+        for i in range(len(nb1.part_whole)):
+            if nb1.part_whole[i]>nb2.part_whole[i]:
+                return 1
+            elif nb1.part_whole[i]<nb2.part_whole[i]:
+                return -1
+        #make decimal parts lengths equals
+        l1=nb1.part_decimal.copy()
+        l2=nb2.part_decimal.copy()
+        if len(l1)>len(l2):
+            ndiff=len(l1)-len(l2)
+            for i in range(ndiff):
+                l2.append(0)
+
+        if len(l1)<len(l2):
+            ndiff=len(l2)-len(l1)
+            for i in range(ndiff):
+                l1.append(0)
+
+        for i in range(len(l1)):
+            if l1[i]>l2[i]:
+                return 1
+            elif l1[i]<l2[i]:
+                return -1
+    return 0        
+
 def PosPlus(nb1:ReelNumber, nb2:ReelNumber):
     nb11,nb22=compareWithoutSign(nb1,nb2)
     nb11,nb22=equalLengths(nb11,nb22)
@@ -153,7 +189,7 @@ def PosMinus(nb1:ReelNumber, nb2:ReelNumber):
             sp=0
         wh.insert(0,r)
         i-=1 
-    return wh,dc,nb11.signe 
+    return wh,dc,nb11 
 
 def PosMult(nb1:ReelNumber, nb2:ReelNumber):
     l1=nb1.part_whole.copy()
@@ -211,6 +247,28 @@ def PosMult(nb1:ReelNumber, nb2:ReelNumber):
     wh=flist[0:nsplit]
     dc=flist[nsplit:]
     return wh,dc 
+def DivInt(nb1:ReelNumber,nb2:ReelNumber):
+    #cmp=comparePosNumbers(nb1,nb2)
+    #print("cmp==",cmp)
+    number_one=ReelNumber([1],[],'+')
+    number_zero=ReelNumber([],[],'+')
+    number=ReelNumber([1],[],'+')
+    for i in range(10):
+        number2=operation(nb2,number,'*')
+        cmp=comparePosNumbers(nb1,number2)
+        #print(nb1,number2," cmp:",cmp)
+        if cmp==-1:
+            #div
+            number=operation(number,number_one,'-')
+            print(nb1," // ",nb2,"  ==",number)
+            #mod
+            mult=operation(nb2,number,'*')
+            mult.changeSigneToPositif()
+            rest=operation(nb1,mult,'-')
+            print(nb1," % ",nb2,"  ==",rest)
+            break
+        number=operation(number,number_one,'+')
+
 
 def operation(nb1:ReelNumber,nb2:ReelNumber,oper):
     
@@ -218,7 +276,8 @@ def operation(nb1:ReelNumber,nb2:ReelNumber,oper):
         if nb1.signe==nb2.signe :
             wh,dc,si=PosPlus(nb1,nb2)
         else:
-            wh,dc,si=PosMinus(nb1,nb2)
+            wh,dc,nbsi=PosMinus(nb1,nb2)
+            si=nbsi.signe
         return ReelNumber(wh,dc,si)     
     if oper=='-':
         if nb1.signe!=nb2.signe :
@@ -229,11 +288,14 @@ def operation(nb1:ReelNumber,nb2:ReelNumber,oper):
         else:
             #+5-(+6)=5-6=-1
             #-5-(-6)=-5+6=1              
-            wh,dc,si1=PosMinus(nb1,nb2) 
-            if si1=='+':
-                si='-'
-            else:
-                si='+'
+            wh,dc,nbsi1=PosMinus(nb1,nb2)
+            if comparePosNumbers(nbsi1,nb1)==0:
+                si=nbsi1.signe
+            elif comparePosNumbers(nbsi1,nb2)==0:
+                if nb2.signe=='+':
+                    si='-'
+                else:
+                    si='+'
         return ReelNumber(wh,dc,si)        
     if oper=='*':
         wh,dc=PosMult(nb1,nb2)
@@ -249,16 +311,18 @@ def operation(nb1:ReelNumber,nb2:ReelNumber,oper):
 
 
 
-nb1=ReelNumber([0,5,8,0,0],[9],'+')
-nb2=ReelNumber([9,1,5,5],[8,0,0,1,4,1,2,3,0,3,0,0],'+')
-nb3=ReelNumber([0],[5,6],'-')
-nb4=ReelNumber([0],[0,5,0,0,0,0,0,0,0,0,0,0],'+')
+nb1=ReelNumber([0,5,8,0,0],[9],'-')
+nb2=ReelNumber([9,1,5,5],[8,0,0,1,4,1,2,3,0,3,0,0],'-')
+nb3=ReelNumber([6,8],[0],'+')
+nb4=ReelNumber([9],[0,0,0,0,0,0,0,0,0,0,0,0],'+')
 
 
-resnb=operation(nb1,nb2,'*')
+resnb=operation(nb1,nb2,'-')
 print(resnb)
-resnb=operation(nb3,nb4,'*')
+resnb=operation(nb3,nb4,'-')
 print(resnb)
+
+DivInt(nb3,nb4)
 #          -1 0     
 #[1,0,3][1,0,4]+
 #[1,5,0][5,0,0]
@@ -290,3 +354,7 @@ print(resnb)
 #2*6+sp=15=> sp=1 r=5
 #7*6+sp=43=> sp=4 r=3
 
+#15750/3
+#1<3
+#15>=3: 3*x>15 take x-1 => x=6 =>x-1=5
+# 
