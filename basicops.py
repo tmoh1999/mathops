@@ -1,4 +1,4 @@
-nbplus=10
+nbplus=100
 class ReelNumber:
     def __init__(self,ph,pc,si):
         self.part_whole=ph
@@ -415,7 +415,7 @@ def PosDiv(nb1:ReelNumber,nb2:ReelNumber,nbplus):
 
 
 def operation(nb1:ReelNumber,nb2:ReelNumber,oper):
-    
+    number_zero=ReelNumber([],[],'+')
     if oper=='+':
         if nb1.signe==nb2.signe :
             wh,dc,si=PosPlus(nb1,nb2)
@@ -442,67 +442,158 @@ def operation(nb1:ReelNumber,nb2:ReelNumber,oper):
                     si='+'
         return ReelNumber(wh,dc,si)        
     if oper=='*':
-        wh,dc=PosMult(nb1,nb2)
-        if nb1.signe==nb2.signe :
-            si='+'
+        cmp=comparePosNumbers(number_zero,nb1)
+        cmp2=comparePosNumbers(number_zero,nb2)
+        if cmp!=0 and cmp2!=0:
+            wh,dc=PosMult(nb1,nb2)
+            if nb1.signe==nb2.signe :
+                si='+'
+            else:
+                si='-'
+            return ReelNumber(wh,dc,si)
         else:
-            si='-'
-        return ReelNumber(wh,dc,si)
+            return number_zero
     if oper=='/':
         global nbplus
-        wh,dc=PosDiv(nb1,nb2,nbplus)
-        if nb1.signe==nb2.signe :
-            si='+'
+        cmp=comparePosNumbers(number_zero,nb2)
+        
+        if cmp!=0:
+            cmp=comparePosNumbers(number_zero,nb1)
+            if cmp!=0:
+                wh,dc=PosDiv(nb1,nb2,nbplus)
+                if nb1.signe==nb2.signe :
+                    si='+'
+                else:
+                    si='-'
+                # print()
+                # print(nb1," / ",nb2," = ",ReelNumber(wh,dc,si))    
+                # print()
+                return ReelNumber(wh,dc,si)
+            else:
+                return number_zero
         else:
-            si='-'
-        # print()
-        # print(nb1," / ",nb2," = ",ReelNumber(wh,dc,si))    
-        # print()
-        return ReelNumber(wh,dc,si)
-    
+            print("Math Error: Division by zero.")    
+            print()
     return None    
 
+def PosIntPow(nb1:ReelNumber,nb2:ReelNumber):
+    number_zero=ReelNumber([],[],'+')
+    number_one=ReelNumber([1],[],'+')
+    number=ReelNumber(nb2.part_decimal.copy(),[],'+')
+    cmp=comparePosNumbers(number_zero,number)
+    print()
+    if cmp==0:
+        #calc pow
+        cmp=comparePosNumbers(number_zero,nb2)
+        if cmp==0:
+            #nb2==0
+            print(nb1," ** ",nb2," = ",number_one)
+            return number_one
+        else:
+            #nb2==1
+            cmp=comparePosNumbers(number_one,nb2)
+            if cmp==0:
+                if nb2.signe=='-':
+                    nbx=operation(number_one,nb1,'/')
+                    print(nb1," ** ",nb2," = ",nbx)
+                    return nbx
+                else:
+                    print(nb1," ** ",nb2," = ",nb1)
+                    return nb1
+
+            else:    
+                #nb2>=2
+                powerr=ReelNumber([2],[],'+')
+                number_res=nb1.copyReelNumber()
+                number_res=operation(number_res,nb1,'*')
+                cmp=comparePosNumbers(powerr,nb2)
+
+                k=0
+                while(cmp!=0 and k<=5):
+                    number_res=operation(number_res,nb1,'*')
+                    powerr=operation(powerr,number_one,'+')
+                    cmp=comparePosNumbers(powerr,nb2)
+                    # print("loop:")
+                    # print("  ",nb1,nb2)
+                    # print("  ",powerr)
+                    # print("  ",number_res)
+                    # print("  ",cmp)
+                    #k+=1
+
+                if nb2.signe=='-':
+                    nbx=operation(number_one,number_res,'/')
+                    print(nb1," ** ",nb2," = ",nbx)
+                    return nbx
+                else:
+                    print(nb1," ** ",nb2," = ",number_res)  
+                    return number_res    
+            
 
 
 
 
 
-nb1=ReelNumber([9],[5,3,5,3],'-')
-nb2=ReelNumber([0],[7,9],'-')
-nb3=ReelNumber([1],[0],'+')
-nb4=ReelNumber([2],[3,0,0,0,0,0,0,0,0,0,0,0],'+')
-nb5=ReelNumber([1],[0,5,7],'+')
-nb6=ReelNumber([1,2],[3,0,0,0,0,0,5,0,0,0,0,0],'+')
+    else:
+        print("Math Error:Nb2 is not int :",nb2)    
 
 
-nbplus=15
 
-operation(nb1,nb2,"/")
-operation(nb3,nb4,"/")
-operation(nb5,nb6,"/")
-
-nb1=ReelNumber([3,9,4,9,6,1,1,0,3],[0],'-')
-nb2=ReelNumber([2,4,0],[0,5,6],'-')
-nb3=ReelNumber([9],[0,4,2],'+')
-nb4=ReelNumber([8],[5,1,7],'+')
-nb5=ReelNumber([1,5,0],[8,4,2],'+')
-nb6=ReelNumber([0],[1,0,0,0,0,0,0,0,0,0,0,0],'+')
+##NOTE:Devision Test
+# nb1=ReelNumber([9],[5,3,5,3],'-')
+# nb2=ReelNumber([0],[7,9],'-')
+# nb3=ReelNumber([1],[0],'+')
+# nb4=ReelNumber([2],[3,0,0,0,0,0,0,0,0,0,0,0],'+')
+# nb5=ReelNumber([1],[0,5,7],'+')
+# nb6=ReelNumber([1,2],[3,0,0,0,0,0,5,0,0,0,0,0],'+')
 
 
-operation(nb1,nb2,"/")
-operation(nb3,nb4,"/")
-operation(nb5,nb6,"/")
-
-operation(nb2,nb1,"/")
-operation(nb4,nb3,"/")
-operation(nb6,nb5,"/")
 
 
-operation(nb2,nb3,"/")
-operation(nb1,nb3,"/")
-operation(nb1,nb5,"/")
+# nb1=ReelNumber([3,9,4,9,6,1,1,0,3],[0],'-')
+# nb2=ReelNumber([2,4,0],[0,5,6],'-')
+# nb3=ReelNumber([9],[0,4,2],'+')
+# nb4=ReelNumber([8],[5,1,7],'+')
+# nb5=ReelNumber([1,5,0],[8,4,2],'+')
+# nb6=ReelNumber([0],[1,0,0,0,0,0,0,0,0,0,0,0],'+')
+
+# operation(nb1,nb2,"/")
+# operation(nb3,nb4,"/")
+# operation(nb5,nb6,"/")
 
 
-operation(nb2,nb4,"/")
-operation(nb4,nb6,"/")
-operation(nb3,nb5,"/")
+# operation(nb1,nb2,"/")
+# operation(nb3,nb4,"/")
+# operation(nb5,nb6,"/")
+
+# operation(nb2,nb1,"/")
+# operation(nb4,nb3,"/")
+# operation(nb6,nb5,"/")
+
+
+# operation(nb2,nb3,"/")
+# operation(nb1,nb3,"/")
+# operation(nb1,nb5,"/")
+
+
+# operation(nb2,nb4,"/")
+# operation(nb4,nb6,"/")
+# operation(nb3,nb5,"/")
+        
+##NOTE:Power test
+nb1=ReelNumber([1],[2],'+')
+nb2=ReelNumber([6],[0],'-')
+
+nb3=ReelNumber([2],[7,1],'+')
+nb4=ReelNumber([8],[0,0,0,0,0,0,0,0,0,0,0,0],'+')
+
+nb5=ReelNumber([2],[7,1],'-')
+nb6=ReelNumber([1,0],[0,0,0,0,0,0,0,0,0,0,0,0],'-')
+
+nb7=ReelNumber([1],[0],'-')
+nb8=ReelNumber([7],[0,0,0,0,0,0,0,0,0,0,0,0],'+')
+
+
+PosIntPow(nb1,nb2)
+PosIntPow(nb3,nb4)
+PosIntPow(nb5,nb6)
+x=PosIntPow(nb7,nb8)
