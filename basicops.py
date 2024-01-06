@@ -1,3 +1,4 @@
+nbplus=10
 class ReelNumber:
     def __init__(self,ph,pc,si):
         self.part_whole=ph
@@ -260,14 +261,247 @@ def DivInt(nb1:ReelNumber,nb2:ReelNumber):
         if cmp==-1:
             #div
             number=operation(number,number_one,'-')
-            print(nb1," // ",nb2,"  ==",number)
+            #print(nb1," // ",nb2,"  ==",number)
             #mod
             mult=operation(nb2,number,'*')
             mult.changeSigneToPositif()
             rest=operation(nb1,mult,'-')
-            print(nb1," % ",nb2,"  ==",rest)
-            break
+            #print(nb1," % ",nb2,"  ==",rest)
+            return number,rest
         number=operation(number,number_one,'+')
+def MoveComma(nbvrg,resd):
+    #print(nbvrg)
+    if ',' not in resd:
+        resd.append(',')
+    
+    vpos=resd.index(',')
+
+    if nbvrg>0:
+        p=vpos+nbvrg
+        #print("  p===",p)
+        if p>len(resd)-1:
+            ndiff=p-(len(resd)-1)
+            for k in range(ndiff):
+                resd.append(0)
+            vpos=resd.index(',')        
+            p=vpos+nbvrg
+        resd.pop(vpos)    
+        resd.insert(p,',')        
+    elif nbvrg<0:
+        p=vpos-abs(nbvrg)
+        if p<0:
+            for k in range(abs(p)):
+                resd.insert(0,0)                    
+            vpos=resd.index(',')        
+            p=vpos-abs(nbvrg)
+        resd.pop(vpos)      
+        resd.insert(p,',')
+
+    vpos=resd.index(',')    
+    wh=resd[:vpos]
+    dc=resd[vpos+1:]
+    #print()
+    #print(wh,dc)
+    return wh,dc
+def PosDiv(nb1:ReelNumber,nb2:ReelNumber,nbplus):
+    l1=nb1.part_whole.copy()
+    l1.extend(nb1.part_decimal.copy())
+    l2=nb2.part_whole.copy()
+    l2.extend(nb2.part_decimal.copy())
+    number_zero=ReelNumber([],[],'+')
+
+    # print()
+    # print()
+    # print("nb1,nb2:",nb1,nb2)
+    # print("l1,l2:",l1,l2)
+    # print()
+
+    resd=[]
+
+    if len(l1)<len(l2):
+        npd=len(l1)
+    else:
+        npd=len(l2)    
+    l11=[]
+    for k in range(npd):
+        l11.append(l1.pop(0))
+    # print("  l1,l11,l2:",l1,l11,l2)
+    cpt=1
+    while(True):
+        # print()
+        # print("cpt:")
+        nb11=ReelNumber(l11.copy(),[],'+')
+        nb22=ReelNumber(l2.copy(),[],'+')
+        cmp=comparePosNumbers(nb11,nb22)
+        #loop until can devide
+        # print("  l1,l11,l2:",l1,l11,l2)
+        # print("  resd:",resd)
+        
+        while cmp<0:
+            # print("  loop:")
+            if len(l1)>0:
+                if cpt==1:
+                    l11.append(l1.pop(0))
+                else:
+                    l11.append(l1.pop(0))  
+                    resd.append(0)  
+            else:
+                l11.append(0)
+
+                if "," not in resd:
+                    resd.append(0)
+                    resd.append(",")
+                else:
+                    resd.append(0)
+            nb11=ReelNumber(l11.copy(),[],'+')
+            nb22=ReelNumber(l2.copy(),[],'+')
+            cmp=comparePosNumbers(nb11,nb22)
+            # print("     l1,l11,l2:",l1,l11,l2)
+            # print("     resd:",resd)        
+            # print("     cmp",cmp)
+            if comparePosNumbers(nb11,number_zero)==0 and len(l1)==0 and ',' in resd:
+                nbvrg=-len(nb1.part_decimal)+len(nb2.part_decimal)
+                return MoveComma(nbvrg,resd)
+                # print()
+                # print(nb1," / ",nb2," = ",resd)
+                # return 
+            
+        # print()
+        # print()
+        # print("  l1,l11,l2:",l1,l11,l2)
+        # print("  resd:",resd)
+        nb11=ReelNumber(l11.copy(),[],'+')
+        nb22=ReelNumber(l2.copy(),[],'+')
+        d,r=DivInt(nb11,nb22)
+        d.removeUnutilZeroes()
+        r.removeUnutilZeroes()
+        resd.extend(d.part_whole)
+        if comparePosNumbers(r,number_zero)==0 and len(l1)==0:
+            break
+        l11=[]
+
+        if len(l1)>0: 
+            if len(r.part_whole)>0:
+                l11.extend(r.part_whole)
+                l11.append(l1.pop(0))
+            
+            else:
+                l11.append(0)
+                l11.append(l1.pop(0))    
+        else:
+            if ',' not in resd:
+                resd.append(',')    
+            l11.extend(r.part_whole)
+            l11.append(0)
+
+        # print("  rest:",r.part_whole,"div:",d.part_whole)
+        # print("  l1,l11,l2:",l1,l11,l2)
+        # print("  resd:",resd)
+            
+        
+        cpt+=1     
+        if ',' in resd:
+            k=resd.index(',')
+            if len(resd[k+1:])>=nbplus:
+                break
+        if cpt>=nbplus:
+            break    
+    nbvrg=-len(nb1.part_decimal)+len(nb2.part_decimal)
+    return MoveComma(nbvrg,resd)
+    # print()    
+    # print(nb1," / ",nb2," = ",resd)
+def PosDiv2(nb1:ReelNumber,nb2:ReelNumber,nbplus):
+    l1=nb1.part_whole.copy()
+    l1.extend(nb1.part_decimal.copy())
+    l2=nb2.part_whole.copy()
+    l2.extend(nb2.part_decimal.copy())
+    number_zero=ReelNumber([],[],'+')
+
+    # print()
+    # print()
+    # print("nb1,nb2:",nb1,nb2)
+    # print("l1,l2:",l1,l2)
+    # print()
+
+    npd=len(l2)
+    resd=[]
+ 
+
+    while(True):
+        print()
+        print("cpt:")
+        l11=[]
+        if npd>len(l1):
+            ndiff=npd-len(l1)
+            for k in range(ndiff):
+                l1.append(0)
+            if "," not in resd:
+                resd.append(0)
+                resd.append(",")
+                ndiff-=1
+            for k in range(ndiff):
+                resd.append(0)
+
+        print("  l1,l11,l2:",l1,l11,l2)
+        print("  resd:",resd)
+        for k in  range(npd):
+            l11.append(l1.pop(0))
+        print("  l1,l11,l2:",l1,l11,l2)
+        print("  l11:",l11)
+        print("  resd:",resd)
+
+        nb11=ReelNumber(l11.copy(),[],'+')
+        nb22=ReelNumber(l2.copy(),[],'+')
+        cmp=comparePosNumbers(nb11,nb22)
+        if cmp<0:
+            if len(l1)>0:
+                l11.append(l1.pop(0))
+            else:    
+                l11.append(0)
+                if "," not in resd:
+                    resd.append(0)
+                    resd.append(",")
+                else:
+                    resd.append(0)
+        print("  l1,l11,l2:",l1,l11,l2)
+        print("  l11:",l11)
+        print("  resd:",resd)
+        nb11=ReelNumber(l11.copy(),[],'+')
+        nb22=ReelNumber(l2.copy(),[],'+')
+        d,r=DivInt(nb11,nb22)
+        d.removeUnutilZeroes()
+        r.removeUnutilZeroes()
+        
+        if len(d.part_whole)>0:
+            resd.extend(d.part_whole)
+        else:
+            resd.append(0)    
+        print("  rest:",r.part_whole,"div:",d.part_whole)
+        print("  l1,l11,l2:",l1,l11,l2)
+        print("  resd:",resd)
+        
+        if comparePosNumbers(r,number_zero)==0 and len(l1)==0:
+            break
+        
+        if len(l1)>0: 
+            if len(r.part_whole)>0:
+                l1=r.part_whole+l1
+            else:
+                l1.insert(0,0)    
+        else:
+            if ',' not in resd:
+                resd.append(',')    
+            l1=r.part_whole
+            l1.append(0)
+
+        print("  l1,l11,l2:",l1,l11,l2)
+        if ',' in resd:
+            k=resd.index(',')
+            if len(resd[k+1:])>=nbplus:
+                break
+
+      
+
 
 
 def operation(nb1:ReelNumber,nb2:ReelNumber,oper):
@@ -304,6 +538,18 @@ def operation(nb1:ReelNumber,nb2:ReelNumber,oper):
         else:
             si='-'
         return ReelNumber(wh,dc,si)
+    if oper=='/':
+        global nbplus
+        wh,dc=PosDiv(nb1,nb2,nbplus)
+        if nb1.signe==nb2.signe :
+            si='+'
+        else:
+            si='-'
+        # print()
+        # print(nb1," / ",nb2," = ",ReelNumber(wh,dc,si))    
+        # print()
+        return ReelNumber(wh,dc,si)
+    
     return None    
 
 
@@ -311,50 +557,42 @@ def operation(nb1:ReelNumber,nb2:ReelNumber,oper):
 
 
 
-nb1=ReelNumber([0,5,8,0,0],[9],'-')
-nb2=ReelNumber([9,1,5,5],[8,0,0,1,4,1,2,3,0,3,0,0],'-')
-nb3=ReelNumber([6,8],[0],'+')
-nb4=ReelNumber([9],[0,0,0,0,0,0,0,0,0,0,0,0],'+')
+nb1=ReelNumber([9],[5,3,5,3],'-')
+nb2=ReelNumber([0],[7,9],'-')
+nb3=ReelNumber([1],[0],'+')
+nb4=ReelNumber([2],[3,0,0,0,0,0,0,0,0,0,0,0],'+')
+nb5=ReelNumber([1],[0,5,7],'+')
+nb6=ReelNumber([1,2],[3,0,0,0,0,0,5,0,0,0,0,0],'+')
 
 
-resnb=operation(nb1,nb2,'-')
-print(resnb)
-resnb=operation(nb3,nb4,'-')
-print(resnb)
+nbplus=15
 
-DivInt(nb3,nb4)
-#          -1 0     
-#[1,0,3][1,0,4]+
-#[1,5,0][5,0,0]
-#sp=0
-#0-(4+sp==0)=>-4:6 sp=1
-#0-(0+sp==1)=>-1:9 sp=1            
-#5-(1+sp)=>3  sp=0
-#0-(3+sp)=>-3:7 sp=1
-#5-(0+sp)=>4 sp=0
-#1-(1+sp)=>0 sp=0
+operation(nb1,nb2,"/")
+operation(nb3,nb4,"/")
+operation(nb5,nb6,"/")
 
-#047,396        
-#sp=0
-#[1,5,8,9][8,6,2,4,0]
-#[9,5,8,9][7,4,7,8,7]
-#0+7+sp=> 7<10 => sp=0
-#4+8+sp=> 12>=10 => sp=12//10=1
-#2+7+sp=> 10>=10 => sp=10//10=1
-#.....
-#1+9+1=11
-#sp=1
+nb1=ReelNumber([3,9,4,9,6,1,1,0,3],[0],'-')
+nb2=ReelNumber([2,4,0],[0,5,6],'-')
+nb3=ReelNumber([9],[0,4,2],'+')
+nb4=ReelNumber([8],[5,1,7],'+')
+nb5=ReelNumber([1,5,0],[8,4,2],'+')
+nb6=ReelNumber([0],[1,0,0,0,0,0,0,0,0,0,0,0],'+')
 
-#[7,2,5][3]
-#  [4][5,6]
-#     43518
-#     0
-#3*6+sp=18>=10 =>sp=18//10=1 r=8
-#5*6+sp=31>=10 => sp=3 r=1
-#2*6+sp=15=> sp=1 r=5
-#7*6+sp=43=> sp=4 r=3
 
-#15750/3
-#1<3
-#15>=3: 3*x>15 take x-1 => x=6 =>x-1=5
-# 
+operation(nb1,nb2,"/")
+operation(nb3,nb4,"/")
+operation(nb5,nb6,"/")
+
+operation(nb2,nb1,"/")
+operation(nb4,nb3,"/")
+operation(nb6,nb5,"/")
+
+
+operation(nb2,nb3,"/")
+operation(nb1,nb3,"/")
+operation(nb1,nb5,"/")
+
+
+operation(nb2,nb4,"/")
+operation(nb4,nb6,"/")
+operation(nb3,nb5,"/")
