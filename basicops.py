@@ -1,4 +1,3 @@
-nbplus=100
 class ReelNumber:
     def __init__(self,ph,pc,si):
         self.part_whole=ph
@@ -414,7 +413,7 @@ def PosDiv(nb1:ReelNumber,nb2:ReelNumber,nbplus):
 
 
 
-def operation(nb1:ReelNumber,nb2:ReelNumber,oper):
+def operation(nb1:ReelNumber,nb2:ReelNumber,oper,nbplus=50):
     number_zero=ReelNumber([],[],'+')
     if oper=='+':
         if nb1.signe==nb2.signe :
@@ -454,7 +453,6 @@ def operation(nb1:ReelNumber,nb2:ReelNumber,oper):
         else:
             return number_zero
     if oper=='/':
-        global nbplus
         cmp=comparePosNumbers(number_zero,nb2)
         
         if cmp!=0:
@@ -474,6 +472,8 @@ def operation(nb1:ReelNumber,nb2:ReelNumber,oper):
         else:
             print("Math Error: Division by zero.")    
             print()
+    if oper=='**':
+       return PosIntPow(nb1,nb2)         
     return None    
 
 def PosIntPow(nb1:ReelNumber,nb2:ReelNumber):
@@ -481,13 +481,13 @@ def PosIntPow(nb1:ReelNumber,nb2:ReelNumber):
     number_one=ReelNumber([1],[],'+')
     number=ReelNumber(nb2.part_decimal.copy(),[],'+')
     cmp=comparePosNumbers(number_zero,number)
-    print()
+    #print()
     if cmp==0:
         #calc pow
         cmp=comparePosNumbers(number_zero,nb2)
         if cmp==0:
             #nb2==0
-            print(nb1," ** ",nb2," = ",number_one)
+            #print(nb1," ** ",nb2," = ",number_one)
             return number_one
         else:
             #nb2==1
@@ -495,10 +495,10 @@ def PosIntPow(nb1:ReelNumber,nb2:ReelNumber):
             if cmp==0:
                 if nb2.signe=='-':
                     nbx=operation(number_one,nb1,'/')
-                    print(nb1," ** ",nb2," = ",nbx)
+                    #print(nb1," ** ",nb2," = ",nbx)
                     return nbx
                 else:
-                    print(nb1," ** ",nb2," = ",nb1)
+                    #print(nb1," ** ",nb2," = ",nb1)
                     return nb1
 
             else:    
@@ -522,10 +522,10 @@ def PosIntPow(nb1:ReelNumber,nb2:ReelNumber):
 
                 if nb2.signe=='-':
                     nbx=operation(number_one,number_res,'/')
-                    print(nb1," ** ",nb2," = ",nbx)
+                    #print(nb1," ** ",nb2," = ",nbx)
                     return nbx
                 else:
-                    print(nb1," ** ",nb2," = ",number_res)  
+                    #print(nb1," ** ",nb2," = ",number_res)  
                     return number_res    
             
 
